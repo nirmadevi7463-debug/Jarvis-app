@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. - AI Voice Assistant</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #030712;
+            color: #00f0ff;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
+
+        .glow-cyan { text-shadow: 0 0 12px rgba(0, 240, 255, 0.8), 0 0 24px rgba(0, 240, 255, 0.4); }
+        .glow-red { text-shadow: 0 0 12px rgba(239, 68, 68, 0.8), 0 0 24px rgba(239, 68, 68, 0.4); }
+        
+        .box-glow {
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.15), inset 0 0 15px rgba(0, 240, 255, 0.08);
+            border: 1px solid rgba(0, 240, 255, 0.35);
+        }
+
+        .box-glow-active {
+            box-shadow: 0 0 35px rgba(0, 240, 255, 0.7), inset 0 0 25px rgba(0, 240, 255, 0.3);
+            border: 1px solid rgba(0, 240, 255, 0.9);
+        }
+
+        .ring-spin-fast { animation: spin 6s linear infinite; }
+        .ring-spin-slow { animation: spin 14s linear infinite; }
+        .ring-spin-reverse { animation: spin-reverse 10s linear infinite; }
+        .pulse-core { animation: core-pulse 2s ease-in-out infinite; }
+
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+        @keyframes core-pulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 15px #00f0ff); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 30px #00f0ff); }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #00f0ff; border-radius: 2px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-6 relative">
+
+    <div class="fixed inset-0 pointer-events-none opacity-10 bg-[radial-gradient(#00f0ff_1px,transparent_1px)] [background-size:18px_18px]"></div>
+
+    <!-- Header -->
+    <header class="flex flex-wrap justify-between items-center z-10 border-b border-cyan-500/30 pb-4 mb-3">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-atom text-2xl text-cyan-400 animate-spin"></i>
+            <div>
+                <h1 class="font-orbitron text-2xl md:text-3xl font-black tracking-widest text-cyan-400 glow-cyan">J.A.R.V.I.S.</h1>
+                <p class="text-[10px] text-cyan-300/70 tracking-widest">TACTICAL ADVANCED INTEGRATED ASSISTANT</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3 mt-2 sm:mt-0 text-xs tracking-wider">
+            <button onclick="openKeyModal()" class="flex items-center space-x-2 bg-cyan-950/40 hover:bg-cyan-500/20 px-3 py-1.5 rounded border border-cyan-500/40 transition">
+                <i class="fa-solid fa-key text-cyan-400"></i>
+                <span id="key-status-text" class="text-cyan-300 font-bold">SET API KEY</span>
+            </button>
+            <div class="flex items-center space-x-2 bg-cyan-950/40 px-3 py-1.5 rounded border border-cyan-500/30">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                <span>SYSTEM: <span class="text-cyan-300 font-bold">ONLINE</span></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 my-auto z-10 max-w-7xl mx-auto w-full">
+
+        <!-- Controls Left -->
+        <section class="flex flex-col gap-4 order-2 lg:order-1">
+            <div class="bg-cyan-950/20 backdrop-blur-md p-4 rounded-lg box-glow">
+                <h2 class="font-orbitron text-xs font-bold text-cyan-400 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-microchip"></i> DIAGNOSTICS
+                </h2>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <div class="flex justify-between mb-1 text-cyan-300">
+                            <span>NEURAL PROCESSING</span>
+                            <span id="cpu-val">22%</span>
+                        </div>
+                        <div class="w-full bg-cyan-950 rounded-full h-1.5 border border-cyan-500/30">
+                            <div id="cpu-bar" class="bg-cyan-400 h-1.5 rounded-full transition-all duration-500" style="width: 22%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-1 text-cyan-300">
+                            <span>MEMORY ALLOCATION</span>
+                            <span id="ram-val">41%</span>
+                        </div>
+                        <div class="w-full bg-cyan-950 rounded-full h-1.5 border border-cyan-500/30">
+                            <div id="ram-bar" class="bg-cyan-400 h-1.5 rounded-full transition-all duration-500" style="width: 41%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-cyan-950/20 backdrop-blur-md p-4 rounded-lg box-glow flex flex-col justify-between flex-1">
+                <div>
+                    <h2 class="font-orbitron text-xs font-bold text-cyan-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> AUDIO CONFIGURATION
+                    </h2>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <label class="block text-cyan-300 mb-1">VOICE TONE</label>
+                            <select id="voice-select" class="w-full bg-cyan-950 border border-cyan-500/40 text-cyan-300 rounded p-2 focus:outline-none focus:border-cyan-400 text-xs">
+                                <option value="Charon" selected>Charon (Deep Calm JARVIS)</option>
+                                <option value="Puck">Puck (Energetic Male)</option>
+                                <option value="Fenrir">Fenrir (Authoritative Male)</option>
+                                <option value="Zephyr">Zephyr (Soft Warm Male)</option>
+                                <option value="Kore">Kore (Clear Female)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t border-cyan-500/20 text-[11px] text-cyan-400/70">
+                    <p><i class="fa-solid fa-circle-info mr-1"></i> Designed for Google Chrome desktop & mobile browsers.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Central Arc Reactor -->
+        <section class="flex flex-col items-center justify-center p-2 order-1 lg:order-2">
+            <div class="relative w-72 h-72 md:w-88 md:h-88 flex items-center justify-center">
+                <div id="ring-outer" class="absolute inset-0 border-2 border-dashed border-cyan-500/40 rounded-full ring-spin-slow"></div>
+                <div class="absolute inset-5 border border-cyan-400/30 rounded-full ring-spin-reverse"></div>
+                <div class="absolute inset-10 border-2 border-cyan-500/60 rounded-full"></div>
+
+                <div class="absolute w-full h-full ring-spin-fast pointer-events-none">
+                    <div class="w-3 h-3 bg-cyan-400 rounded-full absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_12px_#00f0ff]"></div>
+                </div>
+
+                <!-- Glowing Core -->
+                <button 
+                    id="jarvis-core" 
+                    onclick="handleCoreClick()" 
+                    class="w-40 h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-b from-cyan-900/40 to-cyan-950/80 border-4 border-cyan-400 flex flex-col items-center justify-center box-glow transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none cursor-pointer group"
+                >
+                    <div class="w-32 h-32 md:w-36 md:h-36 rounded-full border border-cyan-300/40 flex flex-col items-center justify-center relative bg-cyan-500/10 backdrop-blur-sm pointer-events-none">
+                        <span id="core-title" class="font-orbitron text-2xl md:text-3xl font-black text-cyan-300 tracking-widest glow-cyan">JARVIS</span>
+                        <span id="core-status" class="text-[9px] font-orbitron tracking-widest text-cyan-400/80 mt-1 uppercase">TAP TO TALK</span>
+                    </div>
+                </button>
+            </div>
+
+            <div id="hud-status" class="mt-6 text-center">
+                <p id="jarvis-state" class="font-orbitron text-cyan-300 tracking-wider text-sm font-bold glow-cyan">SYSTEM READY - TAP JARVIS CORE TO TALK</p>
+                <p id="live-transcript" class="text-xs text-cyan-400/70 italic mt-1 min-h-[22px] max-w-xs px-2">Awaiting user input...</p>
+            </div>
+        </section>
+
+        <!-- Command Terminal -->
+        <section class="flex flex-col h-[400px] lg:h-auto order-3 bg-cyan-950/20 backdrop-blur-md rounded-lg box-glow p-4">
+            <h2 class="font-orbitron text-xs font-bold text-cyan-400 mb-2 flex items-center justify-between border-b border-cyan-500/30 pb-2">
+                <span><i class="fa-solid fa-terminal mr-2"></i>COMMAND TERMINAL</span>
+                <button onclick="clearConsole()" class="text-[10px] text-cyan-400/60 hover:text-cyan-300 underline">CLEAR</button>
+            </h2>
+            <div id="console-logs" class="flex-1 overflow-y-auto space-y-2.5 p-2 text-xs font-mono mb-3">
+                <div class="text-cyan-400/80"><span class="text-cyan-500">[SYS INIT]:</span> Chrome voice engine online. Tap JARVIS core or type below.</div>
+            </div>
+            <form id="command-form" class="flex items-center gap-2 pt-2 border-t border-cyan-500/30" onsubmit="handleFormSubmit(event)">
+                <input type="text" id="user-input" placeholder="Enter command..." class="flex-1 bg-cyan-950/60 border border-cyan-500/40 rounded px-3 py-2 text-xs text-cyan-200 placeholder-cyan-500/50 focus:outline-none focus:border-cyan-400" autocomplete="off"/>
+                <button type="submit" class="bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400 text-cyan-300 px-3.5 py-2 rounded text-xs font-orbitron">SEND</button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- Key Config Modal -->
+    <div id="key-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-cyan-950 border border-cyan-400 p-6 rounded-lg max-w-md w-full box-glow">
+            <h3 class="font-orbitron text-lg font-bold text-cyan-300 mb-2"><i class="fa-solid fa-key mr-2"></i>GEMINI API KEY REQUIRED</h3>
+            <p class="text-xs text-cyan-400/80 mb-4">Enter your Gemini API key to enable live AI voice responses on Chrome. Key is stored locally in your browser.</p>
+            <input type="password" id="api-key-input" placeholder="AIzaSy..." class="w-full bg-cyan-900/60 border border-cyan-500/50 rounded p-2 text-xs text-cyan-100 mb-4 focus:outline-none focus:border-cyan-300"/>
+            <div class="flex justify-end gap-2">
+                <button onclick="closeKeyModal()" class="px-3 py-1.5 text-xs text-cyan-400 hover:underline">CANCEL</button>
+                <button onclick="saveApiKey()" class="px-4 py-1.5 bg-cyan-500/30 hover:bg-cyan-500/50 border border-cyan-300 text-cyan-200 text-xs font-orbitron rounded">SAVE KEY</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        let userApiKey = localStorage.getItem('jarvis_gemini_key') || "";
+        let isListening = false;
+        let recognitionEngine = null;
+        let audioCtx = null;
+        let currentAudioSource = null;
+
+        const jarvisCore = document.getElementById('jarvis-core');
+        const coreTitle = document.getElementById('core-title');
+        const coreStatus = document.getElementById('core-status');
+        const jarvisState = document.getElementById('jarvis-state');
+        const liveTranscript = document.getElementById('live-transcript');
+        const consoleLogs = document.getElementById('console-logs');
+        const userInput = document.getElementById('user-input');
+        const voiceSelect = document.getElementById('voice-select');
+
+        window.onload = () => {
+            updateKeyStatusUI();
+            if (!userApiKey) openKeyModal();
+        };
+
+        function updateKeyStatusUI() {
+            const btnText = document.getElementById('key-status-text');
+            if (userApiKey) {
+                btnText.innerText = "API KEY ACTIVE";
+                btnText.className = "text-cyan-300 font-bold";
+            } else {
+                btnText.innerText = "SET API KEY";
+                btnText.className = "text-red-400 font-bold";
+            }
+        }
+
+        function openKeyModal() {
+            document.getElementById('api-key-input').value = userApiKey;
+            document.getElementById('key-modal').classList.remove('hidden');
+        }
+
+        function closeKeyModal() {
+            document.getElementById('key-modal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('api-key-input').value.trim();
+            if (key) {
+                userApiKey = key;
+                localStorage.setItem('jarvis_gemini_key', key);
+                updateKeyStatusUI();
+                logToConsole('SYS CONFIG', 'Gemini API key updated.', 'text-cyan-400');
+                closeKeyModal();
+            }
+        }
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function handleCoreClick() {
+            if (!userApiKey) {
+                openKeyModal();
+                return;
+            }
+            initAudioContext();
+            if (currentAudioSource) { try { currentAudioSource.stop(); } catch(e){} }
+
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Speech recognition is not supported in this browser. Please use Chrome.");
+                return;
+            }
+
+            recognitionEngine = new SpeechRecognition();
+            recognitionEngine.continuous = false;
+            recognitionEngine.lang = 'en-US';
+
+            recognitionEngine.onstart = () => {
+                isListening = true;
+                setCoreUI('listening');
+                jarvisState.innerText = "LISTENING... SPEAK NOW";
+            };
+
+            recognitionEngine.onresult = (e) => {
+                const transcript = e.results[0][0].transcript;
+                liveTranscript.innerText = `"${transcript}"`;
+                processUserCommand(transcript);
+            };
+
+            recognitionEngine.onerror = (e) => {
+                console.error("Speech error:", e.error);
+                stopListening();
+            };
+
+            recognitionEngine.onend = () => stopListening();
+
+            try { recognitionEngine.start(); } catch(err) { stopListening(); }
+        }
+
+        function stopListening() {
+            isListening = false;
+            if (recognitionEngine) { try { recognitionEngine.stop(); } catch(e){} }
+            setCoreUI('idle');
+            jarvisState.innerText = "SYSTEM READY - TAP JARVIS CORE TO TALK";
+        }
+
+        async function processUserCommand(text) {
+            if (!text || !text.trim()) return;
+            logToConsole('USER', text, 'text-cyan-200');
+            setCoreUI('processing');
+            jarvisState.innerText = "PROCESSING COMMAND...";
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${userApiKey}`;
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: text }] }],
+                systemInstruction: { parts: [{ text: "You are JARVIS. Respond concisely, smartly, and politely in 1-2 sentences. Address user as sir or boss. No markdown formatting." }] }
+            };
+
+            try {
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (reply) {
+                    logToConsole('JARVIS', reply, 'text-cyan-400 font-semibold');
+                    speakReply(reply);
+                } else {
+                    throw new Error("Invalid API Response");
+                }
+            } catch(e) {
+                logToConsole('SYS ERROR', 'API Request failed. Check your API key.', 'text-red-400');
+                setCoreUI('idle');
+            }
+        }
+
+        async function speakReply(text) {
+            setCoreUI('speaking');
+            jarvisState.innerText = "J.A.R.V.I.S. RESPONDING...";
+
+            const selectedVoice = voiceSelect.value || "Charon";
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${userApiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: `Say in a calm AI voice: ${text}` }] }],
+                generationConfig: { responseModalities: ["AUDIO"], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: selectedVoice } } } }
+            };
+
+            try {
+                const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                const inlineAudio = data.candidates?.[0]?.content?.parts?.find(p => p.inlineData)?.inlineData;
+
+                if (inlineAudio) {
+                    initAudioContext();
+                    const audioBuffer = pcm16ToAudioBuffer(base64ToUint8Array(inlineAudio.data), 24000, audioCtx);
+                    currentAudioSource = audioCtx.createBufferSource();
+                    currentAudioSource.buffer = audioBuffer;
+                    currentAudioSource.connect(audioCtx.destination);
+                    currentAudioSource.onended = () => setCoreUI('idle');
+                    currentAudioSource.start(0);
+                } else {
+                    fallbackTTS(text);
+                }
+            } catch(e) {
+                fallbackTTS(text);
+            }
+        }
+
+        function fallbackTTS(text) {
+            if ('speechSynthesis' in window) {
+                const utt = new SpeechSynthesisUtterance(text);
+                utt.onend = () => setCoreUI('idle');
+                window.speechSynthesis.speak(utt);
+            } else {
+                setCoreUI('idle');
+            }
+        }
+
+        function pcm16ToAudioBuffer(bytes, sampleRate, context) {
+            const numSamples = Math.floor(bytes.length / 2);
+            const buffer = context.createBuffer(1, numSamples, sampleRate);
+            const channelData = buffer.getChannelData(
