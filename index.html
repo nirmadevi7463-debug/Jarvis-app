@@ -172,9 +172,10 @@
             <div id="console-logs" class="flex-1 overflow-y-auto space-y-2.5 p-2 text-xs font-mono mb-3">
                 <div class="text-cyan-400/80"><span class="text-cyan-500">[SYS INIT]:</span> Chrome voice engine online. Tap JARVIS core or type below.</div>
             </div>
-            <form id="command-form" class="flex items-center gap-2 pt-2 border-t border-cyan-500/30" onsubmit="handleFormSubmit(event)">
-                <input type="text" id="user-input" placeholder="Enter command..." class="flex-1 bg-cyan-950/60 border border-cyan-500/40 rounded px-3 py-2 text-xs text-cyan-200 placeholder-cyan-500/50 focus:outline-none focus:border-cyan-400" autocomplete="off"/>
-                <button type="submit" class="bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400 text-cyan-300 px-3.5 py-2 rounded text-xs font-orbitron">SEND</button>
+            <form id="command-form" onsubmit="event.preventDefault(); handleSendText();">
+                <input type="text" id="user-input">
+                <button type="button" onclick="handleSendText()>"Send</button>
+                
             </form>
         </section>
 
