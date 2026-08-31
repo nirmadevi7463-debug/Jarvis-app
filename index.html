@@ -195,6 +195,7 @@
 
     <!-- Script Logic -->
     <script>
+        window.onerror = (msg, url, line) => alert(`Error on line ${line}: ${msg}`);
         let userApiKey = 'AQ.Ab8RN6L0rrotVrYUfuCCzDv55ezVu-OtY7gCOId7DervTKCzgw';
         let isListening = false;
         let recognitionEngine = null;
