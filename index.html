@@ -224,7 +224,7 @@ const handleCoreTap = (e) => {
   if (typeof toggleListening === 'function') toggleListening();
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('load', () => {
   const coreElement = document.getElementById('jarvis-core');
   if (coreElement) {
     coreElement.addEventListener('click', handleCoreTap);
