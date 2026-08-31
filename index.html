@@ -172,10 +172,9 @@
             <div id="console-logs" class="flex-1 overflow-y-auto space-y-2.5 p-2 text-xs font-mono mb-3">
                 <div class="text-cyan-400/80"><span class="text-cyan-500">[SYS INIT]:</span> Chrome voice engine online. Tap JARVIS core or type below.</div>
             </div>
-            <form id="command-form" onsubmit="event.preventDefault(); handleSendText();">
-                <input type="text" id="user-input">
-                <button type="button" onclick="handleSendText()>"Send</button>
-                
+            <form id="command-form" onsubmit="event.preventDefault(); handleSendText();" class="flex gap-2 mt-2">
+                <input type="text" id="user-input" placeholder="Type command..." class="w-full bg-cyan-950/40 border border-cyan-500/30 rounded px-3 py-2 text-cyan-100 placeholder-cyan-600 focus:outline-none focus:border-cyan-400 font-mono text-sm">
+                <button type="button" onclick="handleSendText()" class="bg-cyan-500/20 hover:bg-cyan-500/40 text-cyan-300 border border-cyan-500/50 rounded px-4 py-2 font-mono text-sm transition-all">Send</button>
             </form>
         </section>
 
@@ -210,6 +209,26 @@
         const consoleLogs = document.getElementById('console-logs');
         const userInput = document.getElementById('user-input');
         const voiceSelect = document.getElementById('voice-select');
+        function handleSendText() {
+  const inputEl = document.getElementById('user-input');
+  const text = inputEl ? inputEl.value.trim() : '';
+  if (!text) return;
+  
+  if (typeof appendLog === 'function') appendLog(`USER: ${text}`);
+  if (typeof processCommand === 'function') processCommand(text);
+  if (inputEl) inputEl.value = '';
+}
+
+const handleCoreTap = (e) => {
+  if (e) e.preventDefault();
+  if (typeof toggleListening === 'function') toggleListening();
+};
+
+if (jarvisCore) {
+  jarvisCore.addEventListener('click', handleCoreTap);
+  jarvisCore.addEventListener('touchstart', handleCoreTap);
+        }
+        
 
         window.onload = () => {
             updateKeyStatusUI();
