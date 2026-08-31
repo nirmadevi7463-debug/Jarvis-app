@@ -224,10 +224,13 @@ const handleCoreTap = (e) => {
   if (typeof toggleListening === 'function') toggleListening();
 };
 
-if (jarvisCore) {
-  jarvisCore.addEventListener('click', handleCoreTap);
-  jarvisCore.addEventListener('touchstart', handleCoreTap);
-}
+document.addEventListener('DOMContentLoaded', () => {
+  const coreElement = document.getElementById('jarvis-core');
+  if (coreElement) {
+    coreElement.addEventListener('click', handleCoreTap);
+    coreElement.addEventListener('touchstart', handleCoreTap);
+  }
+});
         
 
         window.onload = () => {
